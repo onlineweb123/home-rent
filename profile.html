@@ -6,13 +6,39 @@
     <title>Home Rent PWA - Profile</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        :root { --primary-color: #2563eb; --background-color: #f8fafc; --card-color: #ffffff; --text-color: #1e293b; --accent-color: #e11d48; }
+        :root { 
+            --primary-color: #2563eb; 
+            --background-color: #f8fafc; 
+            --card-color: #ffffff; 
+            --text-color: #1e293b; 
+            --accent-color: #e11d48; 
+            --text-secondary: #64748b;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background-color: var(--background-color); color: var(--text-color); padding-bottom: 80px; padding-top: 70px; }
         
+        /* Header Style வித் மெனு பட்டன் */
         .top-header { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: var(--card-color); display: flex; align-items: center; padding: 0 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100; }
+        .menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; margin-right: 15px; color: var(--text-color); display: flex; align-items: center; }
         .page-title { font-size: 18px; font-weight: bold; color: var(--primary-color); }
         
+        /* Sidebar Navigation Layout */
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--card-color); box-shadow: 4px 0 15px rgba(0,0,0,0.1); z-index: 200; transition: 0.3s; padding: 25px 20px; display: flex; flex-direction: column; }
+        .sidebar.active { left: 0; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 150; display: none; backdrop-filter: blur(2px); }
+        .sidebar-overlay.active { display: block; }
+        .sidebar h2 { margin-bottom: 25px; color: var(--primary-color); font-size: 24px; font-weight: 700; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        
+        .sidebar-menu-wrapper { flex: 1; } /* மெனு ஐட்டம்களை மேலே தள்ளுவதற்கு */
+        .sidebar-menu-item { display: flex; align-items: center; padding: 14px 12px; border-radius: 10px; cursor: pointer; margin-bottom: 8px; font-weight: 500; color: #475569; transition: 0.2s; text-decoration: none; }
+        .sidebar-menu-item:hover { background: #eff6ff; color: var(--primary-color); }
+        .sidebar-menu-item span { margin-right: 15px; }
+        
+        /* பிரத்யேக கீழ் பகுதி லாக் அவுட் ஸ்டைல் */
+        .sidebar-logout-btn { display: flex; align-items: center; padding: 14px 12px; border-radius: 10px; cursor: pointer; font-weight: 500; color: var(--accent-color); transition: 0.2s; border-top: 1px dashed #f1f5f9; margin-top: auto; }
+        .sidebar-logout-btn:hover { background: #fff1f2; }
+        .sidebar-logout-btn span { margin-right: 15px; }
+
         .page { padding: 15px; max-width: 500px; margin: 0 auto; }
         
         /* Premium Profile Card Design */
@@ -26,7 +52,8 @@
         .info-label { font-size: 14px; color: #475569; font-weight: 500; }
         .info-value { background: #fee2e2; color: var(--accent-color); font-weight: 700; font-size: 12px; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: var(--card-color); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 12px rgba(0,0,0,0.05); border-top: 1px solid #f1f5f9; }
+        /* பாட்டம் நேவிகேஷன் */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: var(--card-color); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 12px rgba(0,0,0,0.05); border-top: 1px solid #f1f5f9; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; background: none; border: none; color: #64748b; cursor: pointer; font-size: 11px; text-decoration: none; width: 100%; height: 100%; gap: 4px; font-weight: 500; }
         .nav-item.active { color: var(--primary-color); }
         .nav-item span.material-icons { font-size: 24px; }
@@ -34,14 +61,43 @@
 </head>
 <body>
 
+    <script>
+        // [AUTH GUARD] லாகின் செய்யாமல் ப்ரொஃபைல் பக்கத்தை பார்க்க முடியாது
+        const sessionUser = localStorage.getItem('currentUser');
+        if (!sessionUser) {
+            alert("Access Denied! Please sign in first.");
+            window.location.href = 'login.html';
+        }
+        // லாகின் செய்த யூசரின் விபரங்களை வேரியபிளில் சேமிக்கிறோம்
+        const loggedInUser = JSON.parse(sessionUser);
+    </script>
+
     <div class="top-header">
+        <button class="menu-btn" onclick="toggleSidebar(true)">
+            <span class="material-icons">menu</span>
+        </button>
         <span class="page-title">My Profile</span>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
+    <div class="sidebar" id="sidebar">
+        <h2>Menu</h2>
+        <div class="sidebar-menu-wrapper">
+            <div class="sidebar-menu-item" onclick="location.href='index.html'"><span class="material-icons">home</span> Home</div>
+            <div class="sidebar-menu-item" onclick="location.href='add-post.html'"><span class="material-icons">add_box</span> Post a Property</div>
+            <div class="sidebar-menu-item" onclick="location.href='profile.html'"><span class="material-icons">person</span> My Profile</div>
+        </div>
+        
+        <div class="sidebar-logout-btn" onclick="handleLogout()">
+            <span class="material-icons">logout</span> Sign Out
+        </div>
     </div>
 
     <div class="page">
         <div class="profile-card">
             <div class="profile-avatar"><span class="material-icons">account_circle</span></div>
-            <h3>Welcome, User</h3>
+            <h3 id="profileUserName">Welcome, User</h3>
             <p style="color: #64748b; margin-top: 6px; font-size: 14px; margin-bottom: 20px;">Your account overview & settings</p>
             
             <div class="info-container">
@@ -59,5 +115,27 @@
         <a href="profile.html" class="nav-item active"><span class="material-icons">person</span><span>Profile</span></a>
     </div>
 
+    <script>
+        // சைட்பார் ஓபன்/குளோஸ் செயல்பாடு
+        function toggleSidebar(show) {
+            document.getElementById('sidebar').classList.toggle('active', show);
+            document.getElementById('sidebarOverlay').classList.toggle('active', show);
+        }
+
+        // சைன்-அவுட் லாக்அவுட் ஃபங்ஷன்
+        function handleLogout() {
+            if(confirm("Are you sure you want to sign out?")) {
+                localStorage.removeItem('currentUser'); // லாகின் டேட்டாவை அழிக்கிறது
+                window.location.href = 'login.html'; // லாகின் பக்கத்திற்கு ரீடைரக்ட் செய்யும்
+            }
+        }
+
+        // பக்கம் லோடானதும் லாகின் செஞ்ச யூசர் பேரை கார்டில் அப்டேட் செய்தல்
+        window.onload = function() {
+            if (loggedInUser && loggedInUser.name) {
+                document.getElementById('profileUserName').innerText = "Welcome, " + loggedInUser.name;
+            }
+        };
+    </script>
 </body>
 </html>
