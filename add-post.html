@@ -6,13 +6,25 @@
     <title>Home Rent PWA - Post Property</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        :root { --primary-color: #2563eb; --background-color: #f8fafc; --card-color: #ffffff; --text-color: #1e293b; }
+        :root { --primary-color: #2563eb; --background-color: #f8fafc; --card-color: #ffffff; --text-color: #1e293b; --text-secondary: #64748b; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background-color: var(--background-color); color: var(--text-color); padding-bottom: 80px; padding-top: 70px; }
         
+        /* ஹெட்டர் மற்றும் மெனு பட்டன் ஸ்டைல் */
         .top-header { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: var(--card-color); display: flex; align-items: center; padding: 0 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100; }
+        .menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; margin-right: 15px; color: var(--text-color); display: flex; align-items: center; }
         .page-title { font-size: 18px; font-weight: bold; color: var(--primary-color); }
         
+        /* சைட்பார் நேவிகேஷன் ஸ்டைல் */
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--card-color); box-shadow: 4px 0 15px rgba(0,0,0,0.1); z-index: 200; transition: 0.3s; padding: 25px 20px; }
+        .sidebar.active { left: 0; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 150; display: none; backdrop-filter: blur(2px); }
+        .sidebar-overlay.active { display: block; }
+        .sidebar h2 { margin-bottom: 25px; color: var(--primary-color); font-size: 24px; font-weight: 700; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .sidebar-menu-item { display: flex; align-items: center; padding: 14px 12px; border-radius: 10px; cursor: pointer; margin-bottom: 8px; font-weight: 500; color: #475569; transition: 0.2s; }
+        .sidebar-menu-item:hover { background: #eff6ff; color: var(--primary-color); }
+        .sidebar-menu-item span { margin-right: 15px; }
+
         .page { padding: 15px; max-width: 500px; margin: 0 auto; }
         .form-group { margin-bottom: 18px; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #475569; }
@@ -51,7 +63,7 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: var(--card-color); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 12px rgba(0,0,0,0.05); border-top: 1px solid #f1f5f9; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: var(--card-color); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 12px rgba(0,0,0,0.05); border-top: 1px solid #f1f5f9; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; background: none; border: none; color: #64748b; cursor: pointer; font-size: 11px; text-decoration: none; width: 100%; height: 100%; gap: 4px; font-weight: 500; }
         .nav-item.active { color: var(--primary-color); }
         .nav-item span.material-icons { font-size: 24px; }
@@ -59,8 +71,29 @@
 </head>
 <body>
 
+    <script>
+        // [AUTH GUARD] லாகின் செய்யாமல் இந்தப் பக்கத்தை பயன்படுத்த முடியாது
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) {
+            alert("Access Denied! Please sign in first.");
+            window.location.href = 'login.html';
+        }
+    </script>
+
     <div class="top-header">
+        <button class="menu-btn" onclick="toggleSidebar(true)">
+            <span class="material-icons">menu</span>
+        </button>
         <span class="page-title">List New Rental Property</span>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
+    <div class="sidebar" id="sidebar">
+        <h2>Menu</h2>
+        <div class="sidebar-menu-item" onclick="location.href='index.html'"><span class="material-icons">home</span> Home</div>
+        <div class="sidebar-menu-item" onclick="location.href='add-post.html'"><span class="material-icons">add_box</span> Post a Property</div>
+        <div class="sidebar-menu-item" onclick="location.href='profile.html'"><span class="material-icons">person</span> My Profile</div>
     </div>
 
     <div class="page">
@@ -112,6 +145,12 @@
     </div>
 
     <script>
+        // சைட்பார் ஓபன்/குளோஸ் செய்யும் செயல்பாடு
+        function toggleSidebar(show) {
+            document.getElementById('sidebar').classList.toggle('active', show);
+            document.getElementById('sidebarOverlay').classList.toggle('active', show);
+        }
+
         async function uploadToFirebase(event) {
             event.preventDefault();
             
