@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Rent PWA - Home</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --background-color: #f8fafc;
+            --card-color: #ffffff;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --accent-color: #e11d48;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: var(--background-color); color: var(--text-color); padding-bottom: 80px; padding-top: 70px; }
+        
+        /* Header & Search Bar */
+        .top-header { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: var(--card-color); display: flex; align-items: center; padding: 0 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100; }
+        .menu-btn { background: none; border: none; font-size: 24px; cursor: pointer; margin-right: 15px; color: var(--text-color); display: flex; align-items: center; }
+        .search-bar { flex: 1; display: flex; background: #f1f5f9; border-radius: 25px; padding: 8px 15px; align-items: center; }
+        .search-bar input { border: none; background: none; outline: none; width: 100%; margin-left: 8px; font-size: 14px; color: var(--text-color); }
+        
+        /* Sidebar Navigation */
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--card-color); box-shadow: 4px 0 15px rgba(0,0,0,0.1); z-index: 200; transition: 0.3s; padding: 25px 20px; }
+        .sidebar.active { left: 0; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 150; display: none; backdrop-filter: blur(2px); }
+        .sidebar-overlay.active { display: block; }
+        .sidebar h2 { margin-bottom: 25px; color: var(--primary-color); font-size: 24px; font-weight: 700; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .sidebar-menu-item { display: flex; align-items: center; padding: 14px 12px; border-radius: 10px; cursor: pointer; margin-bottom: 8px; font-weight: 500; color: #475569; transition: 0.2s; }
+        .sidebar-menu-item:hover { background: #eff6ff; color: var(--primary-color); }
+        .sidebar-menu-item span { margin-right: 15px; }
+        
+        /* Feed & Container Layout */
+        .page { padding: 15px; max-width: 500px; margin: 0 auto; }
+        
+        /* Rental Cards Styling */
+        .rental-card { background: var(--card-color); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 25px; border: 1px solid #f1f5f9; }
+        .main-img-container { width: 100%; height: 220px; background: #e2e8f0; position: relative; }
+        .main-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .card-details { padding: 18px; }
+        .card-price { font-size: 22px; font-weight: 700; color: var(--primary-color); margin-bottom: 6px; }
+        .card-title { font-size: 17px; font-weight: 600; margin-bottom: 12px; color: var(--text-color); line-height: 1.4; }
+        
+        /* Content Information Grid Icons */
+        .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; background: #f8fafc; padding: 12px; border-radius: 10px; }
+        .card-info-text { font-size: 13px; color: #475569; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+        .card-info-text span.material-icons { font-size: 18px; color: var(--primary-color); }
+        
+        /* Thumbnail Selector Component */
+        .thumb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; margin-bottom: 15px; }
+        .thumb-grid img { width: 100%; height: 55px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .thumb-grid img.active-thumb { border-color: var(--primary-color); transform: scale(0.95); }
+        
+        /* Amenities Grid Labels */
+        .amenities { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+        .amenity-tag { background: #eff6ff; color: #1e40af; padding: 6px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+        
+        /* Direct Contact & Action Buttons */
+        .contact-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #e2e8f0; }
+        .btn-action { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-call { background: #dcfce7; color: #15803d; }
+        .btn-call:hover { background: #bbf7d0; }
+        .btn-map { background: #f1f5f9; color: #334155; }
+        .btn-map:hover { background: #e2e8f0; }
+        
+        /* Bottom Navigation Bar Layout */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: var(--card-color); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 12px rgba(0,0,0,0.05); z-index: 100; border-top: 1px solid #f1f5f9; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 11px; text-decoration: none; width: 100%; height: 100%; gap: 4px; font-weight: 500; }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item span.material-icons { font-size: 24px; }
+        
+        /* Status Feedback Messaging UI */
+        .loading, .error-msg, .empty-msg { text-align: center; padding: 40px 20px; font-weight: 600; color: var(--text-secondary); font-size: 15px; }
+        .error-msg { color: var(--accent-color); }
+    </style>
+</head>
+<body>
+
+    <div class="top-header">
+        <button class="menu-btn" onclick="toggleSidebar(true)">
+            <span class="material-icons">menu</span>
+        </button>
+        <div class="search-bar">
+            <span class="material-icons" style="color: var(--text-secondary); font-size: 20px;">search</span>
+            <input type="text" id="searchInput" onkeyup="searchHouse()" placeholder="Search amenities or location...">
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+    
+    <div class="sidebar" id="sidebar">
+        <h2>Menu</h2>
+        <div class="sidebar-menu-item" onclick="location.href='index.html'"><span class="material-icons">home</span> Home</div>
+        <div class="sidebar-menu-item" onclick="location.href='add-post.html'"><span class="material-icons">add_box</span> Post a Property</div>
+        <div class="sidebar-menu-item" onclick="location.href='profile.html'"><span class="material-icons">person</span> My Profile</div>
+    </div>
+
+    <div class="page">
+        <div id="listingsContainer" class="loading">Loading rentals from Firebase...</div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item active">
+            <span class="material-icons">home</span><span>Home</span>
+        </a>
+        <a href="add-post.html" class="nav-item">
+            <span class="material-icons">add_circle</span><span>Post</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <span class="material-icons">person</span><span>Profile</span>
+        </a>
+    </div>
+
+    <script>
+        let allHouses = [];
+        const databaseURL = "https://all-projects-2a14a-default-rtdb.firebaseio.com/houses.json";
+
+        function toggleSidebar(show) {
+            document.getElementById('sidebar').classList.toggle('active', show);
+            document.getElementById('sidebarOverlay').classList.toggle('active', show);
+        }
+
+        function cleanDriveLink(url) {
+            if (url && url.includes('drive.google.com')) {
+                let id = '';
+                if (url.includes('id=')) id = url.split('id=')[1].split('&')[0];
+                else if (url.includes('/d/')) id = url.split('/d/')[1].split('/')[0];
+                return id ? `https://docs.google.com/uc?export=view&id=${id}` : url;
+            }
+            return url || 'https://via.placeholder.com/500x300?text=No+Image';
+        }
+
+        // Fetch properties from Firebase Realtime Database
+        async function fetchHouses() {
+            try {
+                const response = await fetch(databaseURL);
+                const data = await response.json();
+                const container = document.getElementById('listingsContainer');
+                container.innerHTML = "";
+
+                if (!data) {
+                    container.innerHTML = "<div class='empty-msg'>No rental listings posted yet!</div>";
+                    return;
+                }
+
+                allHouses = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+                displayHouses(allHouses);
+            } catch (error) {
+                console.error("Error fetching data: ", error);
+                document.getElementById('listingsContainer').innerHTML = "<div class='error-msg'>Failed to connect and fetch data!</div>";
+            }
+        }
+
+        function displayHouses(data) {
+            const container = document.getElementById('listingsContainer');
+            container.innerHTML = "";
+
+            if(data.length === 0) {
+                container.innerHTML = "<div class='empty-msg'>No matching rentals found!</div>";
+                return;
+            }
+
+            data.forEach(house => {
+                let amenitiesList = Array.isArray(house.amenities) ? house.amenities : [house.amenities];
+                let amenitiesHtml = amenitiesList.map(a => `<span class="amenity-tag"><span class="material-icons" style="font-size:14px;">check_circle</span>${a}</span>`).join('');
+                let photos = house.photos || [];
+
+                let cardHtml = `
+                    <div class="rental-card">
+                        <div class="main-img-container">
+                            <img id="main-img-${house.id}" src="${cleanDriveLink(photos[0])}" alt="Rental Property">
+                        </div>
+                        <div class="card-details">
+                            <div class="card-price">₹${house.price} / month</div>
+                            <div class="card-title">${house.title}</div>
+                            
+                            <div class="info-row">
+                                <p class="card-info-text">
+                                    <span class="material-icons">king_bed</span>
+                                    <strong>Rooms:</strong> ${house.rooms}
+                                </p>
+                                <p class="card-info-text">
+                                    <span class="material-icons">tag</span>
+                                    <strong>ID:</strong> ${house.id.slice(-6).toUpperCase()}
+                                </p>
+                            </div>
+
+                            <div class="amenities">${amenitiesHtml}</div>
+                            
+                            <div class="thumb-grid">
+                                ${photos.map((p, idx) => p ? `<img src="${cleanDriveLink(p)}" onclick="changeMainImage('${house.id}', '${cleanDriveLink(p)}', this)" class="${idx===0?'active-thumb':''}" alt="Thumbnail">` : '').join('')}
+                            </div>
+
+                            <div class="contact-box">
+                                <a href="tel:${house.phone}" class="btn-action btn-call">
+                                    <span class="material-icons">call</span> Call Owner
+                                </a>
+                                <a href="${house.location}" target="_blank" class="btn-action btn-map">
+                                    <span class="material-icons">place</span> View Map
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        function changeMainImage(houseId, newSrc, thumbElement) {
+            document.getElementById(`main-img-${houseId}`).src = newSrc;
+            thumbElement.parentElement.querySelectorAll('img').forEach(img => img.classList.remove('active-thumb'));
+            thumbElement.classList.add('active-thumb');
+        }
+
+        function searchHouse() {
+            let query = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = allHouses.filter(h => 
+                h.title.toLowerCase().includes(query) || 
+                h.rooms.toLowerCase().includes(query) ||
+                (Array.isArray(h.amenities) ? h.amenities.join(' ') : h.amenities).toLowerCase().includes(query)
+            );
+            displayHouses(filtered);
+        }
+
+        window.onload = fetchHouses;
+    </script>
+</body>
+</html>

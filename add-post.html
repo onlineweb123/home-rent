@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Rent PWA - Post Property</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root { --primary-color: #2563eb; --background-color: #f8fafc; --card-color: #ffffff; --text-color: #1e293b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: var(--background-color); color: var(--text-color); padding-bottom: 80px; padding-top: 70px; }
+        
+        .top-header { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: var(--card-color); display: flex; align-items: center; padding: 0 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100; }
+        .page-title { font-size: 18px; font-weight: bold; color: var(--primary-color); }
+        
+        .page { padding: 15px; max-width: 500px; margin: 0 auto; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #475569; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; outline: none; font-size: 14px; transition: 0.2s; }
+        .form-group input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        
+        .photo-section { background: #f1f5f9; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        .photo-section input { margin-top: 8px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; outline: none; background: #ffffff; }
+        .photo-section input:focus { border-color: var(--primary-color); }
+
+        .btn-submit { 
+            width: 100%; 
+            background: var(--primary-color); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            font-size: 16px; 
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .btn-submit:active { transform: scale(0.98); }
+        .btn-submit:disabled { background: #93c5fd; cursor: not-allowed; box-shadow: none; }
+        
+        .spinner {
+            width: 20px; height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%; border-top-color: white;
+            animation: spin 0.8s linear infinite; display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: var(--card-color); display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 12px rgba(0,0,0,0.05); border-top: 1px solid #f1f5f9; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; background: none; border: none; color: #64748b; cursor: pointer; font-size: 11px; text-decoration: none; width: 100%; height: 100%; gap: 4px; font-weight: 500; }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item span.material-icons { font-size: 24px; }
+    </style>
+</head>
+<body>
+
+    <div class="top-header">
+        <span class="page-title">List New Rental Property</span>
+    </div>
+
+    <div class="page">
+        <form id="addHouseForm" onsubmit="uploadToFirebase(event)">
+            <div class="form-group">
+                <label>Property Title / Name</label>
+                <input type="text" id="title" placeholder="e.g., Luxury Independent House" required>
+            </div>
+            <div class="form-group">
+                <label>Monthly Rent (₹)</label>
+                <input type="number" id="price" placeholder="e.g., 8000" required>
+            </div>
+            <div class="form-group">
+                <label>Room Details</label>
+                <input type="text" id="rooms" placeholder="e.g., 2 BHK, 1 Kitchen" required>
+            </div>
+            <div class="form-group">
+                <label>Amenities</label>
+                <input type="text" id="amenitiesInput" placeholder="e.g., Car Parking, Water Facility (separate with commas)">
+            </div>
+            <div class="form-group">
+                <label>Contact Number</label>
+                <input type="tel" id="phone" placeholder="e.g., 9876543210" required>
+            </div>
+            <div class="form-group">
+                <label>Google Maps Location Link</label>
+                <input type="url" id="location" placeholder="Paste Google Maps URL here" required>
+            </div>
+            
+            <div class="photo-section">
+                <label style="font-size: 13px; font-weight: bold; color: #334155;">Google Drive Photo Links:</label>
+                <input type="url" id="img1" placeholder="Drive URL 1 (Main Cover Image)" required>
+                <input type="url" id="img2" placeholder="Drive URL 2">
+                <input type="url" id="img3" placeholder="Drive URL 3">
+                <input type="url" id="img4" placeholder="Drive URL 4">
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-submit">
+                <div class="spinner" id="btnSpinner"></div>
+                <span id="btnText">Publish to Firebase</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item"><span class="material-icons">home</span><span>Home</span></a>
+        <a href="add-post.html" class="nav-item active"><span class="material-icons">add_circle</span><span>Post</span></a>
+        <a href="profile.html" class="nav-item"><span class="material-icons">person</span><span>Profile</span></a>
+    </div>
+
+    <script>
+        async function uploadToFirebase(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const btnSpinner = document.getElementById('btnSpinner');
+            const btnText = document.getElementById('btnText');
+            
+            submitBtn.disabled = true;
+            btnSpinner.style.display = "block";
+            btnText.innerText = "Uploading property...";
+
+            const databaseURL = "https://all-projects-2a14a-default-rtdb.firebaseio.com/houses.json";
+
+            let amenitiesStr = document.getElementById('amenitiesInput').value;
+            let amenities = amenitiesStr ? amenitiesStr.split(',').map(s => s.trim()) : ["All Standard Amenities"];
+            
+            let p1 = document.getElementById('img1').value;
+            let p2 = document.getElementById('img2').value;
+            let p3 = document.getElementById('img3').value;
+            let p4 = document.getElementById('img4').value;
+
+            let houseData = {
+                title: document.getElementById('title').value,
+                price: parseFloat(document.getElementById('price').value),
+                rooms: document.getElementById('rooms').value,
+                phone: document.getElementById('phone').value,
+                location: document.getElementById('location').value,
+                amenities: amenities,
+                photos: [p1, p2, p3, p4].filter(p => p.trim() !== "")
+            };
+
+            try {
+                const response = await fetch(databaseURL, {
+                    method: "POST",
+                    body: JSON.stringify(houseData),
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                if(response.ok) {
+                    alert("Rental property successfully saved to Firebase!");
+                    document.getElementById('addHouseForm').reset();
+                    location.href = "index.html"; 
+                } else {
+                    const errorText = await response.text();
+                    alert("Firebase Error: " + errorText);
+                }
+            } catch (error) {
+                console.error("Error saving data:", error);
+                alert("Network error occurred while saving the data. Please check your Firebase rules.");
+            } finally {
+                submitBtn.disabled = false;
+                btnSpinner.style.display = "none";
+                btnText.innerText = "Publish to Firebase";
+            }
+        }
+    </script>
+</body>
+</html>
