@@ -123,12 +123,17 @@
             document.getElementById('sidebarOverlay').classList.toggle('active', show);
         }
 
+        // Google Drive இமேஜ் லோடிங் பிரச்சனையை தீர்க்கும் புதிய மேம்படுத்தப்பட்ட ஃபங்ஷன்
         function cleanDriveLink(url) {
             if (url && url.includes('drive.google.com')) {
                 let id = '';
-                if (url.includes('id=')) id = url.split('id=')[1].split('&')[0];
-                else if (url.includes('/d/')) id = url.split('/d/')[1].split('/')[0];
-                return id ? `https://docs.google.com/uc?export=view&id=${id}` : url;
+                if (url.includes('id=')) {
+                    id = url.split('id=')[1].split('&')[0];
+                } else if (url.includes('/d/')) {
+                    id = url.split('/d/')[1].split('/')[0];
+                }
+                // வெப்சைட்களில் மிக வேகமாக லோடாகும் கூகுளின் அதிகாரப்பூர்வ தம்ப்நெயில் ரெண்டரர் லிங்க்
+                return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1000` : url;
             }
             return url || 'https://via.placeholder.com/500x300?text=No+Image';
         }
