@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Rent PWA - Home</title>
+
+    <meta name="theme-color" content="#2563eb">
+    <link rel="manifest" href="manifest.json">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Home Rent">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root {
@@ -301,6 +311,17 @@
 
         // பக்கம் லோடானதும் டேட்டாக்களை ஃபெட்ச் செய்யும் எக்ஸிகியூஷன்
         window.onload = fetchHouses;
-    </script>
+    
+    
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker Registered Successfully!', reg.scope))
+                    .catch(err => console.log('Service Worker Registration Failed:', err));
+            });
+        }
+   
+
+</script>
 </body>
 </html>
